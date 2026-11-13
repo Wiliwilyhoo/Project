@@ -21,6 +21,7 @@ export default function App() {
   const [amount, setAmount] = useState("");
   const [nftId, setNftId] = useState("1");
   const [nftOwner, setNftOwner] = useState("");
+  const [mintName, setMintName] = useState("");
   const [status, setStatus] = useState("");
 
   useEffect(() => {
@@ -133,6 +134,28 @@ export default function App() {
     }
   }
 
+  async function mintNFT() {
+    try {
+      const name = mintName.trim();
+      if (!name) throw new Error("Nhập tên cho NFT mới.");
+      setStatus("Minting NFT...");
+
+      const { condos, signer } = await getContracts();
+      const owner = await signer.getAddress();
+      const json = JSON.stringify({ name });
+      const base64 = btoa(String.fromCharCode(...new TextEncoder().encode(json)));
+      const uri = "data:application/json;base64," + base64;
+
+      const tx = await condos.mintCondo(owner, uri);
+      await tx.wait();
+
+      setMintName("");
+      setStatus("NFT minted successfully! Nhập Token ID mới vào ô trên để kiểm tra.");
+    } catch (error) {
+      setStatus(error.reason || error.message);
+    }
+  }
+
   async function transferNFT() {
     try {
       const to = recipient.trim();
@@ -194,6 +217,16 @@ export default function App() {
 
       <section>
         <h2>Condos (ERC-721)</h2>
+
+        <input
+          placeholder="Tên NFT mới (chỉ owner mint được)"
+          value={mintName}
+          onChange={(e) => setMintName(e.target.value)}
+        />
+
+        <button onClick={mintNFT} disabled={!account}>
+          Mint NFT
+        </button>
 
         <input
           placeholder="NFT Token ID"
