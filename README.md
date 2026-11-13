@@ -58,15 +58,18 @@ Bạn sẽ dùng ba terminal: một terminal giữ Ganache chạy, một termina
 Trong thư mục dự án, chạy:
 
 ```powershell
-npx -p node@22 -p ganache@7.9.2 -c "ganache --server.host 127.0.0.1 --server.port 7545 --chain.chainId 1337 --chain.networkId 5777 --database.dbPath .ganache"
+$env:UWS_USE_FALLBACK="true"; npx -p node@22 -p ganache@7.9.2 -c "ganache --server.host 127.0.0.1 --server.port 7545 --chain.chainId 1337 --chain.networkId 5777 --database.dbPath .ganache"
 ```
 
 Giữ terminal này mở. Ý nghĩa các tham số:
 
+- `UWS_USE_FALLBACK=true`: bắt buộc trên Windows với Node 22 — binary gốc của Ganache 7.9.2 không có bản build cho ABI của Node 22, không có biến này Ganache sẽ crash với lỗi `Cannot find module '...uws_win32_x64_127.node'`.
 - `7545`: port RPC, khớp `truffle-config.js`.
 - `1337`: Chain ID để nhập vào MetaMask.
 - `5777`: Network ID để Truffle ghi nhận deployment; khác Chain ID.
 - `.ganache`: thư mục lưu blockchain để dùng lại sau khi tắt/mở.
+
+Nếu đã từng chạy Ganache với tham số khác (Network ID khác, hoặc `.ganache` được tạo trước khi thêm `UWS_USE_FALLBACK`), các tài khoản trong `.ganache` cũ có thể hết ETH test hoặc không khớp. Xóa thư mục `.ganache` rồi chạy lại lệnh trên để Ganache tạo blockchain mới có đủ ETH test.
 
 Ganache sẽ in các tài khoản, ETH thử nghiệm và private key. Địa chỉ tài khoản và private key là hai thông tin khác nhau.
 
